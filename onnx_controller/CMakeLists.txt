@@ -28,12 +28,23 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(mcap_builder)
 
+link_directories(/nas/home2/r/rcrisita/unitree_ros2_refactor/cyclonedds_ws/install/onnx_inference/lib)
+
 # Add executable target
+
+# Radu Policy
 add_executable(controller
   src/controller.cpp
   src/motor_crc.cpp
   src/robot_interface.cpp
 )
+
+# # Bora Policy
+# add_executable(controller
+#   src/controller_b.cpp
+#   src/motor_crc.cpp
+#   src/robot_interface_b.cpp
+# )
 
 # Include paths
 target_include_directories(controller PUBLIC

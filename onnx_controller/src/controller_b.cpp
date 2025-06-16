@@ -1,7 +1,6 @@
-#include "controller.hpp"
+#include "controller_b.hpp"
 
 #include <ament_index_cpp/get_package_share_directory.hpp>
-#include <array>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -9,14 +8,14 @@
 #include "motor_crc.hpp"
 #include "onnx_actor.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "robot_interface.hpp"
+#include "robot_interface_b.hpp"
 
 using namespace std::chrono_literals;
 
 std::string get_model_path()
 {
   std::string package_share_dir = ament_index_cpp::get_package_share_directory("onnx_inference");
-  std::string model_path = package_share_dir + "/data/actor_feet_air.onnx";
+  std::string model_path = package_share_dir + "/data/model.onnx";
 
   return model_path;
 }
@@ -28,7 +27,7 @@ ONNXController::ONNXController()
 {
   actor_ = std::make_unique<ONNXActor>(get_model_path(), observation_, action_),
   // Set up the robot interface
-    robot_interface_ = std::make_unique<Go2RobotInterface>(*this, simple_joint_names_, simple_feet_names_);
+    robot_interface_ = std::make_unique<Go2RobotInterface>(*this, isaac_joint_names_, isaac_feet_names_);
 
   // Set parameters
   this->declare_parameter("kp", kp_);
@@ -55,7 +54,7 @@ ONNXController::ONNXController()
     this->get_logger(), "ONNXController initialised, going to initial "
                         "pose and waiting for Joy message.");
 
-  robot_interface_->go_to_configuration(q0_simple_, 5.0);
+  robot_interface_->go_to_configuration(q0_, 5.0);
 
   // Set the timer to publish at 50 Hz
   timer_ = this->create_wall_timer(20ms, std::bind(&ONNXController::publish, this));
@@ -75,14 +74,6 @@ void ONNXController::print_vecs()
   {
     std::cout << observation_[i] << ", ";
   }
-  std::cout << std::endl;
-
-  std::cout << "Base Quaternion: ";
-  for (size_t i = 0; i < xyzw_quat_.size(); i++)
-  {
-    std::cout << xyzw_quat_[i] << ", ";
-  }
-
   std::cout << std::endl;
 
   std::cout << "gravity_b_hist_: ";
@@ -188,16 +179,7 @@ void ONNXController::publish()
 
   // Project the gravity into base frame
   std::array<float, 4> quat = robot_interface_->get_quaternion();
-
-  // Reorder the quaternion order
   quaternion_ = Eigen::Quaternion(quat[0], quat[1], quat[2], quat[3]);
-  
-  xyzw_quat_ = {
-    quaternion_.x(),
-    quaternion_.y(),
-    quaternion_.z(),
-    quaternion_.w()
-};
   Eigen::Map<const Eigen::Vector3f> vec(gravity_w_.data());
   Eigen::Map<Eigen::Vector3f> gb_map(gravity_b_.data());
   gb_map = quaternion_.inverse() * vec;
@@ -211,18 +193,17 @@ void ONNXController::publish()
   // Read foot contact state
   for (uint8_t i = 0; i < 4; i++)
   {
-    foot_forces_[i] = robot_interface_->get_forces()[i];
+    foot_forces_[i] = robot_interface_->get_forces()[i] >= 22;
   }
 
   // Subtract the q0_ initial pose from the joint positions
   for (uint8_t i = 0; i < 12; i++)
   {
-    q_[i] -= q0_simple_[i];
+    q_[i] -= q0_[i];
   }
 
   // Prepare the buffers
-  populate_buffer(quaternion_hist, xyzw_quat_);
-  populate_buffer(gravity_b_hist_, gb_map);
+  populate_buffer(gravity_b_hist_, gravity_b_);
   populate_buffer(base_ang_vel_hist_, base_ang_vel_);
   // populate_buffer(imu_lin_acc_hist_, imu_lin_acc_);
   populate_buffer(vel_cmd_hist_, vel_cmd_);
@@ -233,8 +214,8 @@ void ONNXController::publish()
 
   // Push all buffers into history
   populate_buffer(
-    observation_, xyzw_quat_, q_,
-    /*imu_lin_acc_hist_,*/ base_ang_vel_, dq_, action_, gravity_b_, vel_cmd_, foot_forces_);
+    observation_, gravity_b_hist_, base_ang_vel_hist_,
+    /*imu_lin_acc_hist_,*/ vel_cmd_hist_, q_hist_, dq_hist_, action_hist_, foot_forces_hist_);
 
   // Run the ONNX model (writes to action_)
   actor_->act();
@@ -247,10 +228,9 @@ void ONNXController::publish()
                                 // action
   }
 
-  // Populate the message. Just debugging
+  // Populate the message
   obs_act_->observation = observation_;
   obs_act_->action = action_;
-
 
   robot_interface_->publish_obs_act(obs_act_);
 
@@ -267,7 +247,7 @@ void ONNXController::publish()
   {
     // The policy expects the prev. action in the scale it outputs them,
     // so we do the scaling only before sanding the commands to the actuators.
-    q_des[i] = q0_simple_[i] - action_[i] * 0.8;
+    q_des[i] = q0_[i] + action_[i] * 0.25;
     zeroes[i] = 0.0;
     kp_array[i] = joy_->buttons[0] == 0 ? kp_ : 5;
     kd_array[i] = kd_;

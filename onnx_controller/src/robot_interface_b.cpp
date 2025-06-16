@@ -1,4 +1,4 @@
-#include "robot_interface.hpp"
+#include "robot_interface_b.hpp"
 
 #include <array>
 #include <string>
@@ -19,8 +19,8 @@ Go2RobotInterface::Go2RobotInterface(
 , cmd_(std::make_shared<unitree_go::msg::LowCmd>())
 , source_joint_names_(source_joint_names)
 , source_feet_names_(source_feet_names)
-, target_joint_idx_(map_indices(source_joint_names_, target_joint_names_simple_))
-, source_joint_idx_(map_indices(target_joint_names_simple_, source_joint_names_))
+, target_joint_idx_(map_indices(source_joint_names_, target_joint_names_))
+, source_joint_idx_(map_indices(target_joint_names_, source_joint_names_))
 , target_feet_idx_(map_indices(source_feet_names_, target_feet_names_))
 , source_feet_idx_(map_indices(target_feet_names_, source_feet_names_))
 {

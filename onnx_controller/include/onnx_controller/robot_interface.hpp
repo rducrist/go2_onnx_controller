@@ -242,14 +242,10 @@ private:
   // Joint names in the order that the controller is expecting them.
   const std::array<std::string_view, kDimDOF> source_joint_names_;
 
-  // Joint names in the order that the robot is expecting them.
-  static constexpr std::array<std::string_view, kDimDOF> target_joint_names_bullet_ = {
+  // Joint names in the order that the robot is expecting them. UNITREE format. Will be later converted to simple/bullet in the individual simulator wrappers
+  static constexpr std::array<std::string_view, kDimDOF> target_joint_names_ = {
     "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint", "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint",
     "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint", "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint"};
-
-  static constexpr std::array<std::string_view, kDimDOF> target_joint_names_simple_ = {
-    "FL_hip_joint", "FL_thigh_joint", "FL_calf_joint", "FR_hip_joint", "FR_thigh_joint", "FR_calf_joint",
-    "RL_hip_joint", "RL_thigh_joint", "RL_calf_joint", "RR_hip_joint", "RR_thigh_joint", "RR_calf_joint"};
 
   // Joint names in the order that the controller is expecting them.
   const std::array<std::string_view, 4> source_feet_names_;

@@ -55,7 +55,7 @@ ONNXController::ONNXController()
     this->get_logger(), "ONNXController initialised, going to initial "
                         "pose and waiting for Joy message.");
 
-  robot_interface_->go_to_configuration(q0_simple_, 5.0);
+  robot_interface_->go_to_configuration(q0_simple_, 8.0);
 
   // Set the timer to publish at 50 Hz
   timer_ = this->create_wall_timer(20ms, std::bind(&ONNXController::publish, this));
@@ -212,12 +212,6 @@ void ONNXController::publish()
   for (uint8_t i = 0; i < 4; i++)
   {
     foot_forces_[i] = robot_interface_->get_forces()[i];
-  }
-
-  // Subtract the q0_ initial pose from the joint positions
-  for (uint8_t i = 0; i < 12; i++)
-  {
-    q_[i] -= q0_simple_[i];
   }
 
   // Prepare the buffers

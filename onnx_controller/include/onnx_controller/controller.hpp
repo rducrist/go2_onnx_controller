@@ -93,7 +93,7 @@ private:
     parameter_callback_handle_; ///< Handle for the parameter callback
 
   // Torque control parameters
-  float kp_ = 20.0; ///< Proportional gain
+  float kp_ = 28.0; ///< Proportional gain
   float kd_ = 2.5;  ///< Derivative gain
 
   sensor_msgs::msg::Joy::SharedPtr joy_;                       ///< Pointer to the Joy message

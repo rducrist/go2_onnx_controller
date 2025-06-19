@@ -19,8 +19,8 @@ Go2RobotInterface::Go2RobotInterface(
 , cmd_(std::make_shared<unitree_go::msg::LowCmd>())
 , source_joint_names_(source_joint_names)
 , source_feet_names_(source_feet_names)
-, target_joint_idx_(map_indices(source_joint_names_, target_joint_names_simple_))
-, source_joint_idx_(map_indices(target_joint_names_simple_, source_joint_names_))
+, target_joint_idx_(map_indices(source_joint_names_, target_joint_names_))
+, source_joint_idx_(map_indices(target_joint_names_, source_joint_names_))
 , target_feet_idx_(map_indices(source_feet_names_, target_feet_names_))
 , source_feet_idx_(map_indices(target_feet_names_, source_feet_names_))
 {
@@ -130,10 +130,10 @@ void Go2RobotInterface::go_to_configuration_aux(const std::array<float, 12> & q_
 
   // Kp and Kd arrays
   std::array<float, 12> kp_array{};
-  std::fill(kp_array.begin(), kp_array.end(), 150.0);
+  std::fill(kp_array.begin(), kp_array.end(), 100.0);
 
   std::array<float, 12> kd_array{};
-  std::fill(kd_array.begin(), kd_array.end(), 1.0);
+  std::fill(kd_array.begin(), kd_array.end(), 0.2);
 
   // Get the current time
   auto start_time = node_.now();
@@ -178,7 +178,7 @@ void Go2RobotInterface::go_to_configuration_aux(const std::array<float, 12> & q_
   for (size_t source_idx = 0; source_idx < 12; source_idx++)
   {
     float error = std::abs(q_des[source_idx] - state_q_[source_idx]);
-    if (error > 0.1)
+    if (error > 0.2)
     {
       throw std::runtime_error("Interpolation failed, error is: " + std::to_string(error));
     }

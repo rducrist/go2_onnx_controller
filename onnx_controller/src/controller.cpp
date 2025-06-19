@@ -69,91 +69,49 @@ void ONNXController::consume(const sensor_msgs::msg::Joy::SharedPtr msg)
 
 void ONNXController::print_vecs()
 {
-  // Print observation and action
-  std::cout << "Observation: ";
-  for (size_t i = 0; i < observation_.size(); i++)
-  {
-    std::cout << observation_[i] << ", ";
-  }
-  std::cout << std::endl;
+  std::cout << "---- Observation Components ----" << std::endl;
 
-  std::cout << "Base Quaternion: ";
+  std::cout << "xyzw quaternion:         [";
   for (size_t i = 0; i < xyzw_quat_.size(); i++)
-  {
-    std::cout << xyzw_quat_[i] << ", ";
-  }
+    std::cout << std::fixed << std::setprecision(4) << xyzw_quat_[i] << (i < xyzw_quat_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
 
-  std::cout << std::endl;
+  std::cout << "q (Simple order):        [";
+  for (size_t i = 0; i < q_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << q_[i] << (i < q_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
 
-  std::cout << "gravity_b_hist_: ";
-  for (size_t i = 0; i < gravity_b_hist_.size(); i++)
-  {
-    std::cout << gravity_b_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
+  std::cout << "dq (Simple order):       [";
+  for (size_t i = 0; i < dq_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << dq_[i] << (i < dq_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
 
-  std::cout << "base_ang_vel_hist_: ";
-  for (size_t i = 0; i < base_ang_vel_hist_.size(); i++)
-  {
-    std::cout << base_ang_vel_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
+  std::cout << "base_ang_vel:            [";
+  for (size_t i = 0; i < base_ang_vel_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << base_ang_vel_[i] << (i < base_ang_vel_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
 
-  std::cout << "imu_lin_acc_hist_: ";
-  for (size_t i = 0; i < imu_lin_acc_hist_.size(); i++)
-  {
-    std::cout << imu_lin_acc_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
+  std::cout << "gravity_b:               [";
+  for (size_t i = 0; i < gravity_b_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << gravity_b_[i] << (i < gravity_b_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
 
-  std::cout << "vel_cmd_hist_: ";
-  for (size_t i = 0; i < vel_cmd_hist_.size(); i++)
-  {
-    std::cout << vel_cmd_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "q_hist_: ";
-  for (size_t i = 0; i < q_hist_.size(); i++)
-  {
-    std::cout << q_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "dq_hist_: ";
-  for (size_t i = 0; i < dq_hist_.size(); i++)
-  {
-    std::cout << dq_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "action_hist_: ";
-  for (size_t i = 0; i < action_hist_.size(); i++)
-  {
-    std::cout << action_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "foot_forces_hist_: ";
-  for (size_t i = 0; i < foot_forces_hist_.size(); i++)
-  {
-    std::cout << foot_forces_hist_[i] << ", ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "Action: " << std::endl;
-  for (size_t i = 0; i < action_.size(); i++)
-  {
-    std::cout << i << ": " << action_[i] << std::endl;
-  }
-  std::cout << std::endl;
-
-  std::cout << "Velocity command: " << std::endl;
+  std::cout << "vel_cmd:                 [";
   for (size_t i = 0; i < vel_cmd_.size(); i++)
-  {
-    std::cout << i << ": " << vel_cmd_[i] << std::endl;
-  }
-  std::cout << std::endl;
+    std::cout << std::fixed << std::setprecision(4) << vel_cmd_[i] << (i < vel_cmd_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
+
+  std::cout << "action (last, Simple):   [";
+  for (size_t i = 0; i < action_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << action_[i] << (i < action_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
+
+  std::cout << "foot_forces:             [";
+  for (size_t i = 0; i < foot_forces_.size(); i++)
+    std::cout << std::fixed << std::setprecision(4) << foot_forces_[i] << (i < foot_forces_.size() - 1 ? ", " : "");
+  std::cout << "]" << std::endl;
+
+  std::cout << "-------------------------------" << std::endl;
 
   std::cout << "kp: " << kp_ << std::endl;
   std::cout << "kd: " << kd_ << std::endl;
